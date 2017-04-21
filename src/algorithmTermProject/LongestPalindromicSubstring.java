@@ -25,39 +25,76 @@ public class LongestPalindromicSubstring {
 		//
 		List<String> palString = new ArrayList<>();
 		int palLen = 0;
-		for (int i = 1; i <= 10; i++) {
-			int len = i * i * 10;
+		for (int i = 1; i <= 20; i++) {
+			int len = i * 50;
 			palLen += len;
 			palString.add(palindromeGenerator(len));
 		}
 		System.out.format("all palindrome lenth: %s%n", palLen);
 		List<String> testString = testStringGenerator(palString);
 //		Print.print(testString);
+		long pre = System.currentTimeMillis();
+		final int maxItr = 5;
+		long avgTime = 0;
 		for (String test : testString) {
-			long pre = System.currentTimeMillis();
+			avgTime = 0;
 //			bruteForce(test);
+			for (int i = 0; i < maxItr - 1; i++) {
+				pre = System.currentTimeMillis();
+				bruteForce(test);
+				avgTime += System.currentTimeMillis() - pre;
+			}
+			pre = System.currentTimeMillis();
+			int temp = bruteForce(test);
+			avgTime += System.currentTimeMillis() - pre;
 			System.out.format("Brute force: test string size: %s, "
 					+ "longest palindrome len: %s, "
-					+ "time use: %s ms%n", 
+					+ "time use: %s ms%n",
 					test.length(), 
-					bruteForce(test), 
-					System.currentTimeMillis() - pre);
+					temp, 
+					avgTime / maxItr);
+			
+//			dp(test);
+			avgTime = 0;
+			for (int i = 0; i < maxItr - 1; i++) {
+				pre = System.currentTimeMillis();
+				dp(test);
+				avgTime += System.currentTimeMillis() - pre;
+			}
 			pre = System.currentTimeMillis();
-//			dynamicProgramming(test);
+			temp = dp(test);
+			avgTime += System.currentTimeMillis() - pre;
 			System.out.format("DP: test string size: %s, "
 					+ "longest palindrome len: %s, "
 					+ "time use: %s ms%n", 
 					test.length(), 
-					dp(test), 
-					System.currentTimeMillis() - pre);
+					temp, 
+					avgTime / maxItr);
+//			pre = System.currentTimeMillis();
+//			fastDP(test);
+//			System.out.format("Manacher: test string size: %s, "
+//					+ "longest palindrome len: %s, "
+//					+ "time use: %s ms%n", 
+//					test.length(), 
+//					fastDP(test), 
+//					System.currentTimeMillis() - pre);
+			
+//			manacher(test);
+			avgTime = 0;
+			for (int i = 0; i < maxItr - 1; i++) {
+				pre = System.currentTimeMillis();
+				manacher(test);
+				avgTime += System.currentTimeMillis() - pre;
+			}
 			pre = System.currentTimeMillis();
-//			dynamicProgramming(test);
+			temp = manacher(test);
+			avgTime += System.currentTimeMillis() - pre;
 			System.out.format("Manacher: test string size: %s, "
 					+ "longest palindrome len: %s, "
 					+ "time use: %s ms%n", 
 					test.length(), 
-					manacher(test), 
-					System.currentTimeMillis() - pre);
+					temp, 
+					avgTime / maxItr);
 			
 		}
 //		System.out.println(System.currentTimeMillis());
@@ -145,34 +182,34 @@ public class LongestPalindromicSubstring {
         return s.substring(palindromeStartsAt, palindromeStartsAt+maxLen).length();
     }
 // super fast dp
-//	private static int dynamicProgramming(String test) {
-//		int[] farest = new int[test.length()];
-//        for (int i = 0; i < farest.length; i++) {
-//            farest[i] = i;
-//        }
-//        for (int i = 1; i < test.length(); i++) {
-//            int first = farest[i - 1] - 1;
-//            if (first >= 0 && test.charAt(i) == test.charAt(first)) {
-//                farest[i] = first;
-//            } else {
-//                for (int j = first + 1; j <= i; j++) {
-//                	if (validPalindrome(test, j , i)) {
-//                        farest[i] = j;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        int maxDiff = 0;
-//        int pos = 0;
-//        for (int i = 0; i < test.length(); i++) {
-//            if (i - farest[i] > maxDiff) {
-//                maxDiff = i - farest[i];
-//                pos = i;
-//            }
-//        }
-//        return test.substring(farest[pos], pos + 1).length();
-//	}
+	private static int fastDP(String test) {
+		int[] farest = new int[test.length()];
+        for (int i = 0; i < farest.length; i++) {
+            farest[i] = i;
+        }
+        for (int i = 1; i < test.length(); i++) {
+            int first = farest[i - 1] - 1;
+            if (first >= 0 && test.charAt(i) == test.charAt(first)) {
+                farest[i] = first;
+            } else {
+                for (int j = first + 1; j <= i; j++) {
+                	if (validPalindrome(test, j , i)) {
+                        farest[i] = j;
+                        break;
+                    }
+                }
+            }
+        }
+        int maxDiff = 0;
+        int pos = 0;
+        for (int i = 0; i < test.length(); i++) {
+            if (i - farest[i] > maxDiff) {
+                maxDiff = i - farest[i];
+                pos = i;
+            }
+        }
+        return test.substring(farest[pos], pos + 1).length();
+	}
 	
 	private static int manacher(String s) {
         return longestPalindromeLinear(s).length();
